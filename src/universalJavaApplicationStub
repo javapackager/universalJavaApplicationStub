@@ -237,6 +237,8 @@ if [ $exitcode -eq 0 ]; then
 	JVMVersion=$(plist_get_java ':JVMVersion' | xargs)
 	# post processing of the version string follows below...
 
+	# read options file name
+	JVMOptionsFile=$(plist_get_java ':JVMOptionsFile')
 
 # read 'Info.plist' file in Oracle style
 else
@@ -291,8 +293,14 @@ else
 	# read the Java version we want to find
 	JVMVersion=$(plist_get ':JVMVersion' | xargs)
 	# post processing of the version string follows below...
+
+	# read options file name
+	JVMOptionsFile=$(plist_get ':JVMOptionsFile')
+
 fi
 
+# read JVM options from file
+[ -f $JVMOptionsFile ] && while read -r option; do JVMDefaultOptions+=" $option"; done <<< $(sed "/^#.*$/d" $JVMOptionsFile)
 
 # (#75) check for undefined icons or icon names without .icns extension and prepare
 # an osascript statement for those cases when the icon can be shown in the dialog
