@@ -121,6 +121,7 @@ plist_get(){
 	/usr/libexec/PlistBuddy -c "print $1" "${InfoPlistFile}" 2> /dev/null
 }
 
+
 # function 'plist_get_java()'
 #
 # read a specific Plist key with 'PlistBuddy' utility
@@ -132,8 +133,6 @@ plist_get(){
 plist_get_java(){
 	plist_get ${JavaKey:-":Java"}$1
 }
-
-
 
 # read Info.plist and extract JVM options
 ############################################
@@ -165,6 +164,12 @@ if [ $exitcode -eq 0 ]; then
 	# set Java and Resources folder
 	JavaFolder="${AppleJavaFolder}"
 	ResourcesFolder="${AppleResourcesFolder}"
+
+	# fix: relocate jar
+	RelocateJar="$(plist_get_java ':RelocateJar' | xargs)"
+	if [[ "$RelocateJar" == *true* ]]; then
+		JavaFolder=${ResourcesFolder}
+	fi
 
 	# set expandable variables
 	APP_ROOT="${AppPackageFolder}"
@@ -313,9 +318,6 @@ else
 	BootstrapScript=$(plist_get ':BootstrapScript')
 
 fi
-
-# read JVM options from file
-[ -f $JVMOptionsFile ] && while read -r option; do JVMDefaultOptions+=" $option"; done <<< $(sed "/^#.*$/d" $JVMOptionsFile)
 
 # (#75) check for undefined icons or icon names without .icns extension and prepare
 # an osascript statement for those cases when the icon can be shown in the dialog
@@ -879,8 +881,11 @@ fi
 cd "${WorkingDirectory}" || exit 13
 stub_logger "[WorkingDirectory] ${WorkingDirectory}"
 
-# invoke bootstrap script
+# fix: invoke bootstrap script
 [ -x "$BootstrapScript" ] && "$BootstrapScript"
+
+# fix: read JVM options from file
+[ -f $JVMOptionsFile ] && while read -r option; do JVMDefaultOptions+=" $option"; done <<< $(sed "/^#.*$/d" $JVMOptionsFile)
 
 # execute Java and set
 # - classpath
