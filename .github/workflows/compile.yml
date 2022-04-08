@@ -1,4 +1,4 @@
-name: Compile
+name: Compile and release
 
 # trigger the workflow manually
 on: workflow_dispatch
@@ -40,14 +40,9 @@ jobs:
   compile:
     name: Compile the stub on ${{ matrix.os }}
     needs: draft_release # we need to know the upload URL
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ macos-10.15 ] # macos-11.0
+    runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
-      - name: Set env
-        run: echo "RELEASE_TAG=${GITHUB_REF:10}" >> $GITHUB_ENV
       - name: Install shc via HomeBrew
         run: |
           brew install shc
