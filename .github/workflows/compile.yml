@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Get version from tag
         id: tag_name
-        run: echo RELEASE_VERSION=$(date +"%Y%m%d.%H%M%S") >> $GITHUB_ENV
+        run: echo "RELEASE_VERSION=$(date +'%Y%m%d.%H%M%S')" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - name: Create draft release
         id: create_draft_release
@@ -22,8 +22,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
+          tag_name: ${{ env.RELEASE_VERSION }}
+          release_name: ${{ env.RELEASE_VERSION }}
           draft: true
           prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
           body: ${{ steps.changelog_reader.outputs.changes }}
