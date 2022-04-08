@@ -38,7 +38,7 @@ jobs:
           asset_content_type: text/x-shellscript
 
   compile:
-    name: Compile the stub on ${{ matrix.os }}
+    name: Compile the stub
     needs: draft_release # we need to know the upload URL
     runs-on: macos-10.15
     steps:
