@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Get version from tag
         id: tag_name
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        run: echo RELEASE_VERSION=$(date +"%Y%m%d.%H%M%S") >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - name: Create draft release
         id: create_draft_release
@@ -27,19 +27,15 @@ jobs:
           draft: true
           prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
           body: ${{ steps.changelog_reader.outputs.changes }}
-      - name: ZIP uncompiled universalJavaApplicationStub
-        run: |
-          echo "Zipping uncompiled script..."
-          zip --junk-paths universalJavaApplicationStub-uncompiled.zip src/universalJavaApplicationStub
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ steps.create_draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub-v${{ env.RELEASE_VERSION }}-source.zip
-          asset_path: ./universalJavaApplicationStub-uncompiled.zip
-          asset_content_type: application/zip
+          asset_name: universalJavaApplicationStub.sh
+          asset_path: ./src/universalJavaApplicationStub
+          asset_content_type: text/x-shellscript
 
   compile:
     name: Compile the stub on ${{ matrix.os }}
@@ -60,21 +56,15 @@ jobs:
         run: |
           echo "Running shc..."
           shc -r -f src/universalJavaApplicationStub
-      - name: ZIP universalJavaApplicationStub binary
-        run: |
-          echo "Zipping binary..."
-          mv src/universalJavaApplicationStub.x universalJavaApplicationStub
-          rm src/universalJavaApplicationStub.x.c
-          zip --junk-paths universalJavaApplicationStub-${{ matrix.os }}.zip universalJavaApplicationStub
       - name: Upload release assets
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub-${{ env.RELEASE_TAG }}-binary-${{ matrix.os }}.zip
-          asset_path: ./universalJavaApplicationStub-${{ matrix.os }}.zip
-          asset_content_type: application/zip
+          asset_name: universalJavaApplicationStub
+          asset_path: ./src/universalJavaApplicationStub.x
+          asset_content_type: application/octet-stream
 
   publish_release:
     name: Publish drafted release
