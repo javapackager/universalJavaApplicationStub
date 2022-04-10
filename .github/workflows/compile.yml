@@ -40,7 +40,7 @@ jobs:
   compile:
     name: Compile the stub
     needs: draft_release # we need to know the upload URL
-    runs-on: macos-10.15
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
 
