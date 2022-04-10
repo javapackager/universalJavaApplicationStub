@@ -27,7 +27,7 @@ jobs:
           draft: true
           prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
           body: ${{ steps.changelog_reader.outputs.changes }}
-      - name: Upload release assets
+      - name: Upload universalJavaApplicationStub.sh asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
@@ -43,22 +43,64 @@ jobs:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
+
       - name: Install shc via HomeBrew
         run: |
           brew install shc
           shc -h
+
       - name: Compile universalJavaApplicationStub
         run: |
           echo "Running shc..."
           shc -r -f src/universalJavaApplicationStub
-      - name: Upload release assets
+
+      - name: Build universalJavaApplicationStub x86_64
+        run: |
+          echo "Running clang for universalJavaApplicationStub.x86_64"
+          clang -o universalJavaApplicationStub.x86_64 -target x86_64-apple-macos10.10 src/universalJavaApplicationStub.x.c 
+          strip universalJavaApplicationStub.x86_64
+
+      - name: Build universalJavaApplicationStub arm64
+        run: |
+          echo "Running clang for universalJavaApplicationStub.arm64"
+          clang -o universalJavaApplicationStub.arm64 -target arm64-apple-macos11 src/universalJavaApplicationStub.x.c
+          strip universalJavaApplicationStub.arm64
+
+      - name: Build universal universalJavaApplicationStub
+        run: |
+          echo "Runnning lipo"
+          lipo -create -output universalJavaApplicationStub universalJavaApplicationStub.x86_64 universalJavaApplicationStub.arm64
+          strip universalJavaApplicationStub
+          chmod ug=rwx,o=rx universalJavaApplicationStub
+
+      - name: Upload universalJavaApplicationStub.x86_64 asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_name: universalJavaApplicationStub.x86_64
+          asset_path: ./universalJavaApplicationStub.x86_64
+          asset_content_type: application/octet-stream
+
+      - name: Upload universalJavaApplicationStub.arm64 asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_name: universalJavaApplicationStub.arm64
+          asset_path: ./universalJavaApplicationStub.arm64
+          asset_content_type: application/octet-stream
+
+      - name: Upload universalJavaApplicationStub asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GH_API_PERSONAL_ACCESS_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub
-          asset_path: ./src/universalJavaApplicationStub.x
+          asset_path: ./universalJavaApplicationStub
           asset_content_type: application/octet-stream
 
   publish_release:
