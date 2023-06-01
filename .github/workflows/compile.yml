@@ -20,7 +20,7 @@ jobs:
         id: create_draft_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ env.RELEASE_VERSION }}
           release_name: ${{ env.RELEASE_VERSION }}
@@ -30,7 +30,7 @@ jobs:
       - name: Upload universalJavaApplicationStub.sh asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub.sh
@@ -76,7 +76,7 @@ jobs:
       - name: Upload universalJavaApplicationStub.x86_64 asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub.x86_64
@@ -86,7 +86,7 @@ jobs:
       - name: Upload universalJavaApplicationStub.arm64 asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub.arm64
@@ -96,7 +96,7 @@ jobs:
       - name: Upload universalJavaApplicationStub asset
         uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub
@@ -110,6 +110,6 @@ jobs:
     steps:
       - uses: eregon/publish-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.SuperSecret }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           release_id: ${{ needs.draft_release.outputs.release_id }}
