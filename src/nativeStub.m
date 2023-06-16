@@ -386,7 +386,7 @@ int main(int argc, char** argv) {
         }
         [allArgs addObject:cliArg];
     }
-//    TODO args passthrough
+
     int count = [allArgs count];
     char** cargs = malloc(sizeof(char*) * (count + 1));
 
