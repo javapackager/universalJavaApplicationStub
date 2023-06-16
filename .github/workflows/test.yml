@@ -1,0 +1,64 @@
+name: Build on push
+
+on: push
+
+jobs:
+  compile:
+    name: Compile the stubs
+    runs-on: macos-11
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install shc via HomeBrew
+        run: |
+          brew install shc
+          shc -h
+
+      - name: Compile universalJavaApplicationStub
+        run: |
+          echo "Running shc..."
+          shc -r -f src/universalJavaApplicationStub
+
+      - name: Build universalJavaApplicationStub x86_64
+        run: |
+          echo "Running clang for universalJavaApplicationStub.x86_64"
+          clang -o universalJavaApplicationStub.x86_64 -target x86_64-apple-macos10.10 src/universalJavaApplicationStub.x.c 
+          strip universalJavaApplicationStub.x86_64
+
+      - name: Build universalJavaApplicationStub arm64
+        run: |
+          echo "Running clang for universalJavaApplicationStub.arm64"
+          clang -o universalJavaApplicationStub.arm64 -target arm64-apple-macos11 src/universalJavaApplicationStub.x.c
+          strip universalJavaApplicationStub.arm64
+
+      - name: Build universal universalJavaApplicationStub
+        run: |
+          echo "Runnning lipo"
+          lipo -create -output universalJavaApplicationStub universalJavaApplicationStub.x86_64 universalJavaApplicationStub.arm64
+          strip universalJavaApplicationStub
+          chmod ug=rwx,o=rx universalJavaApplicationStub
+
+      - name: Build nativeJavaApplicationStub
+        run: |
+          make universal
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: universalJavaApplicationStub
+          retention-days: 7
+          path: |
+            ./src/universalJavaApplicationStub
+            ./universalJavaApplicationStub.x86_64
+            ./universalJavaApplicationStub.arm64
+            ./universalJavaApplicationStub
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: nativeJavaApplicationStub
+          retention-days: 7
+          path: |
+            ./build/x86_64/nativeJavaApplicationStub
+            ./build/arm64/nativeJavaApplicationStub
+            ./build/universal/nativeJavaApplicationStub
