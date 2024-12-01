@@ -6,18 +6,18 @@
 int main(int argc, char** argv) {
     // For future improvement we can make these localized strings actually have the translations
     // like they do in the bash script
-    NSString *MSG_ERROR_LAUNCHING=NSLocalizedString(@"ERROR launching '%s'.", nil);
-    NSString *MSG_MISSING_MAINCLASS=NSLocalizedString(@"'MainClass' isn't specified!\nJava application cannot be started!", nil);
-    NSString *MSG_JVMVERSION_REQ_INVALID=@"The syntax of the required Java version is invalid: %@\nPlease contact the App developer.";
-    NSString *MSG_NO_SUITABLE_JAVA=NSLocalizedString(@"No suitable Java version found on your system!\nThis program requires Java %@", nil);
-    NSString *MSG_JAVA_VERSION_OR_LATER=@" or later";
-    NSString *MSG_JAVA_VERSION_LATEST=@" (latest update)";
-    NSString *MSG_JAVA_VERSION_MAX=@"up to %@";
-    NSString *MSG_NO_SUITABLE_JAVA_CHECK=NSLocalizedString(@"Make sure you install the required Java version.", nil);
-    NSString *MSG_INSTALL_JAVA=NSLocalizedString(@"You need to have JAVA installed on your Mac!\nVisit java.com for installation instructions...", nil);
-    NSString *MSG_LATER=NSLocalizedString(@"Later", nil);
-    NSString *MSG_VISIT_JAVA_DOT_COM=NSLocalizedString(@"Java by Oracle", nil);
-    NSString *MSG_VISIT_ADOPTIUM=NSLocalizedString(@"Java by Adoptium", nil);
+    NSString *MSG_ERROR_LAUNCHING=NSLocalizedStringWithDefaultValue(@"MSG_ERROR_LAUNCHING", @"javaApplicationStub", NSBundle.mainBundle, @"ERROR launching '%s'.", nil);
+    NSString *MSG_MISSING_MAINCLASS=NSLocalizedStringWithDefaultValue(@"MSG_MISSING_MAINCLASS", @"javaApplicationStub", NSBundle.mainBundle, @"'MainClass' isn't specified!\nJava application cannot be started!", nil);
+    NSString *MSG_JVMVERSION_REQ_INVALID=NSLocalizedStringWithDefaultValue(@"MSG_JVMVERSION_REQ_INVALID", @"javaApplicationStub", NSBundle.mainBundle, @"The syntax of the required Java version is invalid: %@\nPlease contact the App developer.", nil);
+    NSString *MSG_NO_SUITABLE_JAVA=NSLocalizedStringWithDefaultValue(@"MSG_NO_SUITABLE_JAVA", @"javaApplicationStub", NSBundle.mainBundle, @"No suitable Java version found on your system!\nThis program requires Java %@", nil);
+    NSString *MSG_JAVA_VERSION_OR_LATER=NSLocalizedStringWithDefaultValue(@"MSG_JAVA_VERSION_OR_LATER", @"javaApplicationStub", NSBundle.mainBundle, @" or later", nil);
+    NSString *MSG_JAVA_VERSION_LATEST=NSLocalizedStringWithDefaultValue(@"MSG_JAVA_VERSION_LATEST", @"javaApplicationStub", NSBundle.mainBundle, @" (latest update)", nil);
+    NSString *MSG_JAVA_VERSION_MAX=NSLocalizedStringWithDefaultValue(@"MSG_JAVA_VERSION_MAX", @"javaApplicationStub", NSBundle.mainBundle, @"up to %@", nil);
+    NSString *MSG_NO_SUITABLE_JAVA_CHECK=NSLocalizedStringWithDefaultValue(@"MSG_NO_SUITABLE_JAVA_CHECK", @"javaApplicationStub", NSBundle.mainBundle, @"Make sure you install the required Java version.", nil);
+    NSString *MSG_INSTALL_JAVA=NSLocalizedStringWithDefaultValue(@"MSG_INSTALL_JAVA", @"javaApplicationStub", NSBundle.mainBundle, @"You need to have JAVA installed on your Mac!\nVisit java.com for installation instructions...", nil);
+    NSString *MSG_LATER=NSLocalizedStringWithDefaultValue(@"MSG_LATER", @"javaApplicationStub", NSBundle.mainBundle, @"Later", nil);
+    NSString *MSG_VISIT_JAVA_DOT_COM=NSLocalizedStringWithDefaultValue(@"MSG_VISIT_JAVA_DOT_COM", @"javaApplicationStub", NSBundle.mainBundle, @"Java by Oracle", nil);
+    NSString *MSG_VISIT_ADOPTIUM=NSLocalizedStringWithDefaultValue(@"MSG_VISIT_ADOPTIUM", @"javaApplicationStub", NSBundle.mainBundle, @"Java by Adoptium", nil);
 
     NSBundle *main = [NSBundle mainBundle];
     NSDictionary *info = [main infoDictionary];
