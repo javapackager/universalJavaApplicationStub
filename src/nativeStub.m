@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     NSString *MSG_INSTALL_JAVA=NSLocalizedString(@"You need to have JAVA installed on your Mac!\nVisit java.com for installation instructions...", nil);
     NSString *MSG_LATER=NSLocalizedString(@"Later", nil);
     NSString *MSG_VISIT_JAVA_DOT_COM=NSLocalizedString(@"Java by Oracle", nil);
-    NSString *MSG_VISIT_ADOPTOPENJDK=NSLocalizedString(@"Java by Adoptium", nil);
+    NSString *MSG_VISIT_ADOPTIUM=NSLocalizedString(@"Java by Adoptium", nil);
 
     NSBundle *main = [NSBundle mainBundle];
     NSDictionary *info = [main infoDictionary];
@@ -314,7 +314,7 @@ int main(int argc, char** argv) {
             [alert setInformativeText:[NSString stringWithFormat:@"%@\n%@", expandedMessage, MSG_NO_SUITABLE_JAVA_CHECK]];
             [alert addButtonWithTitle:MSG_LATER];
             [alert addButtonWithTitle:MSG_VISIT_JAVA_DOT_COM];
-            [alert addButtonWithTitle:MSG_VISIT_ADOPTOPENJDK];
+            [alert addButtonWithTitle:MSG_VISIT_ADOPTIUM];
             NSModalResponse res = [alert runModal];
             if(res == NSAlertSecondButtonReturn) {
                 [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.java.com/download/"]];
@@ -329,7 +329,7 @@ int main(int argc, char** argv) {
             [alert setInformativeText:MSG_INSTALL_JAVA];
             [alert addButtonWithTitle:MSG_LATER];
             [alert addButtonWithTitle:MSG_VISIT_JAVA_DOT_COM];
-            [alert addButtonWithTitle:MSG_VISIT_ADOPTOPENJDK];
+            [alert addButtonWithTitle:MSG_VISIT_ADOPTIUM];
             NSModalResponse res = [alert runModal];
             if(res == NSAlertSecondButtonReturn) {
                 [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.java.com/download/"]];
