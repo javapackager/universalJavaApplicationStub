@@ -40,7 +40,7 @@ jobs:
   compile:
     name: Compile the stub
     needs: draft_release # we need to know the upload URL
-    runs-on: macos-11
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -73,6 +73,10 @@ jobs:
           strip universalJavaApplicationStub
           chmod ug=rwx,o=rx universalJavaApplicationStub
 
+      - name: Build nativeJavaApplicationStub
+        run: |
+          make universal
+
       - name: Upload universalJavaApplicationStub.x86_64 asset
         uses: actions/upload-release-asset@v1
         env:
@@ -101,6 +105,36 @@ jobs:
           upload_url: ${{ needs.draft_release.outputs.upload_url }}
           asset_name: universalJavaApplicationStub
           asset_path: ./universalJavaApplicationStub
+          asset_content_type: application/octet-stream
+
+      - name: Upload nativeJavaApplicationStub.x86_64 asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_name: nativeJavaApplicationStub.x86_64
+          asset_path: ./build/x86_64/nativeJavaApplicationStub
+          asset_content_type: application/octet-stream
+
+      - name: Upload nativeJavaApplicationStub.arm64 asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_name: nativeJavaApplicationStub.arm64
+          asset_path: ./build/arm64/nativeJavaApplicationStub
+          asset_content_type: application/octet-stream
+
+      - name: Upload nativeJavaApplicationStub asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.draft_release.outputs.upload_url }}
+          asset_name: nativeJavaApplicationStub
+          asset_path: ./build/universal/nativeJavaApplicationStub
           asset_content_type: application/octet-stream
 
   publish_release:

@@ -3,3 +3,5 @@
 # shc compiler
 *.x
 *.x.c
+
+build
