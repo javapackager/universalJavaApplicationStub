@@ -105,8 +105,18 @@ int main(int argc, char** argv) {
         }
 
         jvmVersion = javaInfo[@"JVMVersion"];
-        jvmOptionsFile = javaInfo[@"JVMOptionsFile"];
-        bootstrapScript = javaInfo[@"BootstrapScript"];
+        if(javaInfo[@"JVMOptionsFile"] != nil) {
+            NSString *jvmOptFileWithPlaceholders = javaInfo[@"JVMOptionsFile"];
+            jvmOptionsFile = resolvePlaceholders(jvmOptFileWithPlaceholders, javaFolder);
+        } else {
+            jvmOptionsFile = info[@"JVMOptionsFile"];
+        }
+        if(javaInfo[@"BootstrapScript"] != nil) {
+            NSString *bootstrapFileWithPlaceholders = javaInfo[@"BootstrapScript"];
+            bootstrapScript = resolvePlaceholders(bootstrapFileWithPlaceholders, javaFolder);
+        } else {
+            bootstrapScript = info[@"BootstrapScript"];
+        }
     } else {
         NSLog(@"[%s] [PlistStyle] Oracle", appName);
         javaFolder = [[main bundlePath] stringByAppendingPathComponent:@"Contents/Java"];
@@ -151,8 +161,18 @@ int main(int argc, char** argv) {
         }
 
         jvmVersion = info[@"JVMVersion"];
-        jvmOptionsFile = info[@"JVMOptionsFile"];
-        bootstrapScript = info[@"BootstrapScript"];
+        if(javaInfo[@"JVMOptionsFile"] != nil) {
+            NSString *jvmOptFileWithPlaceholders = javaInfo[@"JVMOptionsFile"];
+            jvmOptionsFile = resolvePlaceholders(jvmOptFileWithPlaceholders, javaFolder);
+        } else {
+            jvmOptionsFile = info[@"JVMOptionsFile"];
+        }
+        if(javaInfo[@"BootstrapScript"] != nil) {
+            NSString *bootstrapFileWithPlaceholders = javaInfo[@"BootstrapScript"];
+            bootstrapScript = resolvePlaceholders(bootstrapFileWithPlaceholders, javaFolder);
+        } else {
+            bootstrapScript = info[@"BootstrapScript"];
+        }
     }
     if([jvmVersion containsString:@";"]) {
         NSArray *stringParts = [jvmVersion componentsSeparatedByString:@";"];
@@ -360,6 +380,10 @@ int main(int argc, char** argv) {
         NSString *optionsFile = [[NSString alloc] initWithData:[fileManager contentsAtPath:jvmOptionsFile] encoding:NSUTF8StringEncoding];
         NSArray *lines = [optionsFile componentsSeparatedByString:@"\n"];
         for(NSString *line in lines) {
+            // Filter empty lines, otherwise application will fail to start for empty file
+            if ([line length] == 0) {
+                continue;
+            }
             if([line hasPrefix:@"#"]) {
                 continue;
             }
