@@ -471,7 +471,14 @@ NSString *fetchJavaVersion(NSString *path) {
     NSString *result = execute(path, @[@"-version"]);
     // The actual version will be between the first two quotes in the result
     // We can reasonably ignore all the rest of the output
-    return [result componentsSeparatedByString:@"\""][1];
+    NSArray *components = [result componentsSeparatedByString:@"\""];
+	if (components.count > 1) {
+		return components[1];
+	} else {
+		// Handle unexpected format
+		NSLog(@"Error: Unexpected version string format: %@", result);
+		return nil;
+	}
 }
 
 NSString *normalizeJavaVersion(NSString *version) {
