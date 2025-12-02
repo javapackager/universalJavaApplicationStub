@@ -4,38 +4,23 @@ name: Compile and release
 on: workflow_dispatch
 
 jobs:
-
   draft_release:
     name: Create draft release
     runs-on: ubuntu-latest
-    outputs:
-      release_id: ${{ steps.create_draft_release.outputs.id }}
-      upload_url: ${{ steps.create_draft_release.outputs.upload_url }}
     steps:
       - name: Get version from tag
         id: tag_name
         run: echo "RELEASE_VERSION=$(date +'%Y%m%d.%H%M%S')" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - name: Create draft release
-        id: create_draft_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.RELEASE_VERSION }}
-          release_name: ${{ env.RELEASE_VERSION }}
-          draft: true
-          prerelease: ${{ steps.changelog_reader.outputs.status == 'prereleased' }}
-          body: ${{ steps.changelog_reader.outputs.changes }}
+        run: gh release create --draft "$tag" --title "$tag" --notes "${{ steps.changelog_reader.outputs.changes }}"
       - name: Upload universalJavaApplicationStub.sh asset
-        uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub.sh
-          asset_path: ./src/universalJavaApplicationStub
-          asset_content_type: text/x-shellscript
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run:
+          cp ./src/universalJavaApplicationStub ./universalJavaApplicationStub.sh
+          gh release upload ${{ env.RELEASE_VERSION }} ./universalJavaApplicationStub.sh
 
   compile:
     name: Compile the stub
@@ -77,73 +62,29 @@ jobs:
         run: |
           make universal
 
-      - name: Upload universalJavaApplicationStub.x86_64 asset
-        uses: actions/upload-release-asset@v1
+      - name: Upload compiled assets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub.x86_64
-          asset_path: ./universalJavaApplicationStub.x86_64
-          asset_content_type: application/octet-stream
-
-      - name: Upload universalJavaApplicationStub.arm64 asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub.arm64
-          asset_path: ./universalJavaApplicationStub.arm64
-          asset_content_type: application/octet-stream
-
-      - name: Upload universalJavaApplicationStub asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: universalJavaApplicationStub
-          asset_path: ./universalJavaApplicationStub
-          asset_content_type: application/octet-stream
-
-      - name: Upload nativeJavaApplicationStub.x86_64 asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: nativeJavaApplicationStub.x86_64
-          asset_path: ./build/x86_64/nativeJavaApplicationStub
-          asset_content_type: application/octet-stream
-
-      - name: Upload nativeJavaApplicationStub.arm64 asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: nativeJavaApplicationStub.arm64
-          asset_path: ./build/arm64/nativeJavaApplicationStub
-          asset_content_type: application/octet-stream
-
-      - name: Upload nativeJavaApplicationStub asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.draft_release.outputs.upload_url }}
-          asset_name: nativeJavaApplicationStub
-          asset_path: ./build/universal/nativeJavaApplicationStub
-          asset_content_type: application/octet-stream
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run:
+          cp build/x86_64/nativeJavaApplicationStub ./nativeJavaApplicationStub.x86_64
+          cp build/arm64/nativeJavaApplicationStub ./nativeJavaApplicationStub.arm64
+          cp build/universal/nativeJavaApplicationStub ./nativeJavaApplicationStub
+          gh release upload ${{ needs.draft_release.outputs.tag }} \
+            ./universalJavaApplicationStub.x86_64 \
+            ./universalJavaApplicationStub.arm64 \
+            ./universalJavaApplicationStub \
+            ./nativeJavaApplicationStub.x86_64 \
+            ./nativeJavaApplicationStub.arm64 \
+            ./nativeJavaApplicationStub
 
   publish_release:
     name: Publish drafted release
     needs: [ draft_release, compile ]
     runs-on: ubuntu-latest
     steps:
-      - uses: eregon/publish-release@v1
+      - name: Publish Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_id: ${{ needs.draft_release.outputs.release_id }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release edit ${{ needs.draft_release.outputs.tag }}
