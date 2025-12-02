@@ -7,25 +7,34 @@ jobs:
   draft_release:
     name: Create draft release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      release_version: ${{ steps.tag_name.outputs.release_version }}
     steps:
       - name: Get version from tag
         id: tag_name
-        run: echo "RELEASE_VERSION=$(date +'%Y%m%d.%H%M%S')" >> $GITHUB_ENV
+        run: echo "release_version=$(date +'%Y%m%d.%H%M%S')" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v2
       - name: Create draft release
-        run: gh release create --draft "$tag" --title "$tag" --notes "${{ steps.changelog_reader.outputs.changes }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release create --draft "${{ steps.tag_name.outputs.release_version }}" --generate-notes
       - name: Upload universalJavaApplicationStub.sh asset
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run:
+        run: |
           cp ./src/universalJavaApplicationStub ./universalJavaApplicationStub.sh
-          gh release upload ${{ env.RELEASE_VERSION }} ./universalJavaApplicationStub.sh
+          gh release upload "${{ steps.tag_name.outputs.release_version }}" ./universalJavaApplicationStub.sh
 
   compile:
     name: Compile the stub
     needs: draft_release # we need to know the upload URL
     runs-on: macos-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v2
 
@@ -66,11 +75,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run:
+        run: |
           cp build/x86_64/nativeJavaApplicationStub ./nativeJavaApplicationStub.x86_64
           cp build/arm64/nativeJavaApplicationStub ./nativeJavaApplicationStub.arm64
           cp build/universal/nativeJavaApplicationStub ./nativeJavaApplicationStub
-          gh release upload ${{ needs.draft_release.outputs.tag }} \
+          gh release upload "${{ needs.draft_release.outputs.release_version }}" \
             ./universalJavaApplicationStub.x86_64 \
             ./universalJavaApplicationStub.arm64 \
             ./universalJavaApplicationStub \
@@ -82,9 +91,11 @@ jobs:
     name: Publish drafted release
     needs: [ draft_release, compile ]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Publish Release
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: gh release edit ${{ needs.draft_release.outputs.tag }}
+        run: gh release edit "${{ needs.draft_release.outputs.release_version }}" --draft=false
